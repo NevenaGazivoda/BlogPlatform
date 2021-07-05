@@ -7,6 +7,7 @@ namespace BlogPlatform.Models
 {   
     public class blogPost
     {
+        //public int postId { get; set; }
         public string slug { get; set; }
         public string title { get; set; }
         public string description { get; set; }

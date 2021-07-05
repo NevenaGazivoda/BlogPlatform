@@ -26,7 +26,7 @@ namespace BlogPlatform.Controllers
         [HttpGet]
         public Root GetBlogPost(string slug)
         {
-            SqlCommand command = new SqlCommand("getPostBySlug", db)
+            SqlCommand command = new SqlCommand("gettPostBySlug", db)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -34,37 +34,64 @@ namespace BlogPlatform.Controllers
             command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = slug;
 
             Root root = new Root();
-           // List<string> sList = new List<string>();
-
+            var n=0;            
             try
             {
                 db.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
+                    n= Convert.ToInt32(reader[0]);
                     root.blogPost.slug = Convert.ToString(reader[1]);
                     root.blogPost.title = Convert.ToString(reader[2]);
                     root.blogPost.description = Convert.ToString(reader[3]);
                     root.blogPost.body = Convert.ToString(reader[4]);
                     root.blogPost.createdAt = Convert.ToDateTime(reader[5]);
                     root.blogPost.updatedAt = Convert.ToDateTime(reader[6]);
-
-                    //sList.Add(reader[10].ToString());
-                    root.blogPost.tagList.Add(reader[10].ToString());
+                    
+                    //root.blogPost.tagList.Add(reader[10].ToString());
 
                 }
 
-               // root.blogPost.tagList = sList;
-
                 reader.Close();
+
+                SqlCommand com = new SqlCommand("getTagsforPost", db)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                com.Parameters.Add("@tagId", SqlDbType.Int).Value = n;
+                try
+                {
+                    SqlDataReader r = com.ExecuteReader();
+                    while (r.Read())
+                    {
+                        root.blogPost.tagList.Add(r[1].ToString());
+                       
+                    }
+                    
+                    r.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+              
                 db.Close();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-
             return root;
+        }
+
+        
+
+        [HttpGet]
+        public List<blogPost> GetBlogPosts(string tag="")
+        {
+            return null;
         }
     }
 }
