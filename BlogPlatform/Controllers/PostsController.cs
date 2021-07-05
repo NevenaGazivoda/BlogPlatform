@@ -85,13 +85,88 @@ namespace BlogPlatform.Controllers
             }
             return root;
         }
-
         
 
         [HttpGet]
-        public List<blogPost> GetBlogPosts(string tag="")
+        public Welcome GetBlogPosts(string tag="")
         {
-            return null;
+            SqlCommand command = new SqlCommand("getPosts", db)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.Add("@tag", SqlDbType.NVarChar).Value = tag;
+
+            List<PomocniBP> list = new List<PomocniBP>();
+
+            try
+            {
+                db.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    PomocniBP post = new PomocniBP();
+
+                    post.postId = Convert.ToInt32(reader[0]);
+                    post.slug = Convert.ToString(reader[1]);
+                    post.title = Convert.ToString(reader[2]);
+                    post.description = Convert.ToString(reader[3]);
+                    post.body = Convert.ToString(reader[4]);
+                    post.createdAt = Convert.ToDateTime(reader[5]);
+                    post.updatedAt = Convert.ToDateTime(reader[6]);
+
+                    list.Add(post);
+                }
+
+                reader.Close();
+                foreach (var post in list)
+                {
+                    SqlCommand com = new SqlCommand("getTagsforPost", db)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+
+                    com.Parameters.Add("@tagId", SqlDbType.Int).Value = post.postId;
+                    try
+                    {
+                        SqlDataReader r = com.ExecuteReader();
+                        while (r.Read())
+                        {
+                            post.tagList.Add(r[1].ToString());
+                        }
+                        r.Close();
+                    }
+
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+                db.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            //List<Welcome> posts = new List<Welcome>();
+            Welcome posts = new Welcome();
+
+            foreach (var post in list)
+            {
+                BlogPosts blog = new BlogPosts();
+                                         
+                blog.slug= post.slug;
+                blog.title = post.title;
+                blog.description = post.description;
+                blog.body = post.body;
+                blog.createdAt = post.createdAt;
+                blog.updatedAt = post.updatedAt;
+                blog.tagList = post.tagList;
+                posts.blogPosts.Add(blog);
+                posts.postsCount = posts.blogPosts.Count;
+            }
+            return posts;
         }
     }
 }
