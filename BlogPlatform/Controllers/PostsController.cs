@@ -26,7 +26,7 @@ namespace BlogPlatform.Controllers
         [HttpGet]
         public Root GetBlogPost(string slug)
         {
-            SqlCommand command = new SqlCommand("gettPostBySlug", db)
+            SqlCommand command = new SqlCommand("getPostBySlug", db)
             {
                 CommandType = CommandType.StoredProcedure
             };
@@ -88,7 +88,7 @@ namespace BlogPlatform.Controllers
         
 
         [HttpGet]
-        public Welcome GetBlogPosts(string tag="")
+        public Welcome GetBlogPosts(string tag=null)
         {
             SqlCommand command = new SqlCommand("getPosts", db)
             {
@@ -164,9 +164,125 @@ namespace BlogPlatform.Controllers
                 blog.updatedAt = post.updatedAt;
                 blog.tagList = post.tagList;
                 posts.blogPosts.Add(blog);
-                posts.postsCount = posts.blogPosts.Count;
             }
+            posts.postsCount = posts.blogPosts.Count;
             return posts;
+        }
+
+        [HttpPost]
+        public void CreateNewPost (Root post)
+        {
+
+            post.blogPost.slug = post.blogPost.title.ToLower();
+            post.blogPost.slug = post.blogPost.slug.Replace(" ", "-");
+
+            SqlCommand command = new SqlCommand("createNewPost", db)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            SqlParameter outputIdParam = new SqlParameter("@id", SqlDbType.Int)
+            {
+                Direction = ParameterDirection.Output
+            };
+
+            command.Parameters.Add("@title", SqlDbType.VarChar).Value = post.blogPost.title;
+            command.Parameters.Add("@description", SqlDbType.VarChar).Value = post.blogPost.description;
+            command.Parameters.Add("@body", SqlDbType.VarChar).Value = post.blogPost.body;
+            command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = post.blogPost.slug;
+            command.Parameters.Add(outputIdParam);
+            var id="";
+            try
+            {
+                db.Open();
+                command.ExecuteNonQuery();
+                id = outputIdParam.Value.ToString(); 
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
+
+            SqlCommand com = new SqlCommand("getTags", db)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            List<tag> tags = new List<tag>();
+            try
+            {
+                SqlDataReader reader = com.ExecuteReader();
+                while (reader.Read())
+                {
+                    tag t = new tag();
+                    t.tagId = Convert.ToInt32(reader[0]);
+                    t.name = Convert.ToString(reader[1]);
+                    tags.Add(t);
+                }
+                reader.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            
+                for (int i = 0; i < post.blogPost.tagList.Count; i++)
+                {
+                tags.Where(tag => tag.name != post.blogPost.tagList[i]);
+
+                {
+                    SqlCommand cmd = new SqlCommand("insertIntoTags", db)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+                    SqlParameter outputParam = new SqlParameter("@tagId", SqlDbType.Int)
+                    {
+                        Direction = ParameterDirection.Output
+                    };
+
+                    SqlParameter parameter = new SqlParameter();
+                    parameter.ParameterName = "@name";
+                    parameter.SqlDbType = SqlDbType.NVarChar;
+                    parameter.Direction = ParameterDirection.Input;
+                    parameter.Value = post.blogPost.tagList[i];
+
+
+                    cmd.Parameters.Add(outputParam);
+                    cmd.Parameters.Add(parameter);
+                    var idTag = "";
+                    try
+                    {
+                        cmd.ExecuteNonQuery();
+                        idTag = outputParam.Value.ToString();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                    SqlCommand cm = new SqlCommand("insertIntoTagList", db)
+                    {
+                        CommandType = CommandType.StoredProcedure
+                    };
+
+                    cm.Parameters.Add("@idPost", SqlDbType.Int).Value = id;
+                    cm.Parameters.Add("@idTag", SqlDbType.Int).Value = idTag;
+
+                    try
+                    {
+                        cm.ExecuteNonQuery();
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex.Message);
+                    }
+
+                }
+            }
+
+
+
+            db.Close();
         }
     }
 }
