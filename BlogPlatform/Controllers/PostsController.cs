@@ -34,21 +34,21 @@ namespace BlogPlatform.Controllers
             command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = slug;
 
             Root root = new Root();
-            var n=0;            
+            var n = 0;
             try
             {
                 db.Open();
                 SqlDataReader reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    n= Convert.ToInt32(reader[0]);
+                    n = Convert.ToInt32(reader[0]);
                     root.blogPost.slug = Convert.ToString(reader[1]);
                     root.blogPost.title = Convert.ToString(reader[2]);
                     root.blogPost.description = Convert.ToString(reader[3]);
                     root.blogPost.body = Convert.ToString(reader[4]);
                     root.blogPost.createdAt = Convert.ToDateTime(reader[5]);
                     root.blogPost.updatedAt = Convert.ToDateTime(reader[6]);
-                    
+
                     //root.blogPost.tagList.Add(reader[10].ToString());
 
                 }
@@ -67,16 +67,16 @@ namespace BlogPlatform.Controllers
                     while (r.Read())
                     {
                         root.blogPost.tagList.Add(r[1].ToString());
-                       
+
                     }
-                    
+
                     r.Close();
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.Message);
                 }
-              
+
                 db.Close();
             }
             catch (Exception ex)
@@ -85,10 +85,10 @@ namespace BlogPlatform.Controllers
             }
             return root;
         }
-        
+
 
         [HttpGet]
-        public Welcome GetBlogPosts(string tag=null)
+        public Welcome GetBlogPosts(string tag = null)
         {
             SqlCommand command = new SqlCommand("getPosts", db)
             {
@@ -155,8 +155,8 @@ namespace BlogPlatform.Controllers
             foreach (var post in list)
             {
                 BlogPosts blog = new BlogPosts();
-                                         
-                blog.slug= post.slug;
+
+                blog.slug = post.slug;
                 blog.title = post.title;
                 blog.description = post.description;
                 blog.body = post.body;
@@ -170,7 +170,7 @@ namespace BlogPlatform.Controllers
         }
 
         [HttpPost]
-        public void CreateNewPost (Root post)
+        public void CreateNewPost(Root post)
         {
 
             post.blogPost.slug = post.blogPost.title.ToLower();
@@ -190,18 +190,18 @@ namespace BlogPlatform.Controllers
             command.Parameters.Add("@body", SqlDbType.VarChar).Value = post.blogPost.body;
             command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = post.blogPost.slug;
             command.Parameters.Add(outputIdParam);
-            var id="";
+            var id = "";
             try
             {
                 db.Open();
                 command.ExecuteNonQuery();
-                id = outputIdParam.Value.ToString(); 
+                id = outputIdParam.Value.ToString();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-            
+
 
             SqlCommand com = new SqlCommand("getTags", db)
             {
@@ -225,11 +225,12 @@ namespace BlogPlatform.Controllers
             {
                 Console.WriteLine(ex.Message);
             }
-            
-                for (int i = 0; i < post.blogPost.tagList.Count; i++)
-                {
-                tags.Where(tag => tag.name != post.blogPost.tagList[i]);
 
+            for (int i = 0; i < post.blogPost.tagList.Count; i++)
+            {
+                var idTag = "";
+                //  tags.Where(tag => tag.name != post.blogPost.tagList[i]);
+                if (!tags.Any(tag => tag.name == post.blogPost.tagList[i]))
                 {
                     SqlCommand cmd = new SqlCommand("insertIntoTags", db)
                     {
@@ -249,7 +250,6 @@ namespace BlogPlatform.Controllers
 
                     cmd.Parameters.Add(outputParam);
                     cmd.Parameters.Add(parameter);
-                    var idTag = "";
                     try
                     {
                         cmd.ExecuteNonQuery();
@@ -259,29 +259,59 @@ namespace BlogPlatform.Controllers
                     {
                         Console.WriteLine(ex.Message);
                     }
+                }
+                else if (tags.Any(tag => tag.name == post.blogPost.tagList[i]))
+                {
+                    idTag = tags.Where(tag => tag.name == post.blogPost.tagList[i]).Select(tag => tag.tagId).Single().ToString();
 
-                    SqlCommand cm = new SqlCommand("insertIntoTagList", db)
-                    {
-                        CommandType = CommandType.StoredProcedure
-                    };
 
-                    cm.Parameters.Add("@idPost", SqlDbType.Int).Value = id;
-                    cm.Parameters.Add("@idTag", SqlDbType.Int).Value = idTag;
-
-                    try
-                    {
-                        cm.ExecuteNonQuery();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
+                    ///////////
 
                 }
+
+                SqlCommand cm = new SqlCommand("insertIntoTagList", db)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+                cm.Parameters.Add("@idPost", SqlDbType.Int).Value = id;
+                cm.Parameters.Add("@idTag", SqlDbType.Int).Value = idTag;
+
+                try
+                {
+                    cm.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
             }
+            db.Close();
+        }
 
 
 
+        [Route("{slug}")]
+        [HttpDelete]
+        public void DeletePost(string slug)
+        {
+            SqlCommand command = new SqlCommand("deleteFromPosts", db)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = slug;
+
+            try
+            {
+                db.Open();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             db.Close();
         }
     }
