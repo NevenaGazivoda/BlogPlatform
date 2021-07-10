@@ -314,5 +314,95 @@ namespace BlogPlatform.Controllers
             }
             db.Close();
         }
+
+        [Route("{slug}")]
+        [HttpPut]
+        public void UpdatePost (Root post, string slug)
+        {
+
+            SqlCommand command = new SqlCommand("getPostBySlug", db)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+
+            command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = slug;
+
+            Root blogP = new Root();
+            var n = 0;
+            try
+            {
+                db.Open();
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    n = Convert.ToInt32(reader[0]);
+                    blogP.blogPost.slug = Convert.ToString(reader[1]);
+                    blogP.blogPost.title = Convert.ToString(reader[2]);
+                    blogP.blogPost.description = Convert.ToString(reader[3]);
+                    blogP.blogPost.body = Convert.ToString(reader[4]);
+                }
+
+                reader.Close();
+               
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            SqlCommand com = new SqlCommand("updateBlogPost", db)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+
+            com.Parameters.Add("@id", SqlDbType.Int).Value = n;
+
+            
+            if (post.blogPost.title == null || post.blogPost.title == "")
+            {
+                com.Parameters.Add("@title", SqlDbType.NVarChar).Value = blogP.blogPost.title;
+                com.Parameters.Add("@slug", SqlDbType.NVarChar).Value = blogP.blogPost.slug;
+            }
+            else
+            {
+                com.Parameters.Add("@title", SqlDbType.NVarChar).Value = post.blogPost.title;
+                post.blogPost.slug = post.blogPost.title.ToLower();
+                post.blogPost.slug = post.blogPost.slug.Replace(" ", "-");
+                com.Parameters.Add("@slug", SqlDbType.NVarChar).Value = post.blogPost.slug;
+            }
+
+            if (post.blogPost.description == null || post.blogPost.description == "")
+            {
+                com.Parameters.Add("@description", SqlDbType.NVarChar).Value = blogP.blogPost.description;
+            }
+            else
+            {
+                com.Parameters.Add("@description", SqlDbType.NVarChar).Value = post.blogPost.description;
+            }
+            if (post.blogPost.body == null || post.blogPost.body == "")
+            {
+                com.Parameters.Add("@body", SqlDbType.NVarChar).Value = blogP.blogPost.body;
+            }
+            else
+            {
+                com.Parameters.Add("@body", SqlDbType.NVarChar).Value = post.blogPost.body;
+            }
+
+
+                try
+                {
+                
+                    com.ExecuteNonQuery();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+
+            
+           
+
+            db.Close();
+           
+        }
     }
 }
