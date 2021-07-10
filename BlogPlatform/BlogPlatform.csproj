@@ -165,6 +165,7 @@
     <Compile Include="Models\BlogPosts.cs" />
     <Compile Include="Models\PomocniBP.cs" />
     <Compile Include="Models\Tag.cs" />
+    <Compile Include="Models\TagModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
