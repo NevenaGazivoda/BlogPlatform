@@ -367,6 +367,14 @@ namespace BlogPlatform.Controllers
                 com.Parameters.Add("@title", SqlDbType.NVarChar).Value = post.blogPost.title;
                 post.blogPost.slug = post.blogPost.title.ToLower();
                 post.blogPost.slug = post.blogPost.slug.Replace(" ", "-");
+
+                char[] arr = post.blogPost.slug.ToCharArray();
+
+                arr = Array.FindAll<char>(arr, (c => (char.IsLetterOrDigit(c)
+                                                  || char.IsWhiteSpace(c)
+                                                  || c == '-')));
+                post.blogPost.slug = new string(arr);
+
                 com.Parameters.Add("@slug", SqlDbType.NVarChar).Value = post.blogPost.slug;
             }
 
