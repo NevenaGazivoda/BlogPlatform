@@ -1,4 +1,5 @@
 ﻿using BlogPlatform.Models;
+using DBAccess;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -54,28 +55,10 @@ namespace BlogPlatform.Controllers
                 }
 
                 reader.Close();
+                DBTags dbAcc = new DBTags();
 
-                SqlCommand com = new SqlCommand("getTagsforPost", db)
-                {
-                    CommandType = CommandType.StoredProcedure
-                };
-
-                com.Parameters.Add("@tagId", SqlDbType.Int).Value = n;
-                try
-                {
-                    SqlDataReader r = com.ExecuteReader();
-                    while (r.Read())
-                    {
-                        root.blogPost.tagList.Add(r[1].ToString());
-
-                    }
-
-                    r.Close();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-                }
+                root.blogPost.tagList = dbAcc.CitanjeTagova(n);
+                
 
                 db.Close();
             }
@@ -122,26 +105,10 @@ namespace BlogPlatform.Controllers
                 reader.Close();
                 foreach (var post in list)
                 {
-                    SqlCommand com = new SqlCommand("getTagsforPost", db)
-                    {
-                        CommandType = CommandType.StoredProcedure
-                    };
 
-                    com.Parameters.Add("@tagId", SqlDbType.Int).Value = post.postId;
-                    try
-                    {
-                        SqlDataReader r = com.ExecuteReader();
-                        while (r.Read())
-                        {
-                            post.tagList.Add(r[1].ToString());
-                        }
-                        r.Close();
-                    }
-
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
+                    DBTags dBAccess = new DBTags();
+                    post.tagList = dBAccess.CitanjeTagova(post.postId);
+                   
                 }
                 db.Close();
             }
