@@ -1,5 +1,6 @@
 ﻿using BlogPlatform.Models;
 using DBAccess;
+using DBAccess.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -25,50 +26,12 @@ namespace BlogPlatform.Controllers
 
         [Route("{slug}")]
         [HttpGet]
-        public Root GetBlogPost(string slug)
+        public Root GetRoot(string slug)
         {
-            SqlCommand command = new SqlCommand("getPostBySlug", db)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
-
-            command.Parameters.Add("@slug", SqlDbType.NVarChar).Value = slug;
-
-            Root root = new Root();
-            var n = 0;
-            try
-            {
-                db.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    n = Convert.ToInt32(reader[0]);
-                    root.blogPost.slug = Convert.ToString(reader[1]);
-                    root.blogPost.title = Convert.ToString(reader[2]);
-                    root.blogPost.description = Convert.ToString(reader[3]);
-                    root.blogPost.body = Convert.ToString(reader[4]);
-                    root.blogPost.createdAt = Convert.ToDateTime(reader[5]);
-                    root.blogPost.updatedAt = Convert.ToDateTime(reader[6]);
-
-                    //root.blogPost.tagList.Add(reader[10].ToString());
-
-                }
-
-                reader.Close();
-                DBTags dbAcc = new DBTags();
-
-                root.blogPost.tagList = dbAcc.CitanjeTagova(n);
-                
-
-                db.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-            return root;
+            DBPost dbPost = new DBPost();
+            var rootObj = dbPost.GetBlogPost(slug);
+            return rootObj;
         }
-
 
         [HttpGet]
         public Welcome GetBlogPosts(string tag = null)
