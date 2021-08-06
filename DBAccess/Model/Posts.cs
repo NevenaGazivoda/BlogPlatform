@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace BlogPlatform.Models
+namespace DBAccess.Model
 {
-    public class PomocniBP
+    public class Posts
     {
         public int postId { get; set; }
         public string slug { get; set; }
@@ -16,7 +17,7 @@ namespace BlogPlatform.Models
         public DateTime createdAt { get; set; }
         public DateTime updatedAt { get; set; }
 
-        public PomocniBP()
+        public Posts()
         {
             tagList = new List<string>();
         }

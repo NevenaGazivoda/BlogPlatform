@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace BlogPlatform.Models
+namespace DBAccess.Model
 {
-    public class Welcome
+    public class BPosts
     {
         public List<BlogPosts> blogPosts { get; set; }
-        public Welcome()
+        public BPosts()
         {
-        blogPosts = new List<BlogPosts>();
+            blogPosts = new List<BlogPosts>();
         }
         public int postsCount { get; set; }
 
     }
-    
+
     public class BlogPosts
     {
         public string slug { get; set; }
@@ -31,6 +32,4 @@ namespace BlogPlatform.Models
             tagList = new List<string>();
         }
     }
-
-
 }

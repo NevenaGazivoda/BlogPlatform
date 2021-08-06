@@ -162,11 +162,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\BlogPost.cs" />
-    <Compile Include="Models\BlogPosts.cs" />
-    <Compile Include="Models\PomocniBP.cs" />
-    <Compile Include="Models\Tag.cs" />
-    <Compile Include="Models\TagModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

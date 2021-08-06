@@ -42,9 +42,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DBConnection.cs" />
-    <Compile Include="DBPost.cs" />
+    <Compile Include="DBPosts.cs" />
     <Compile Include="DBTags.cs" />
+    <Compile Include="Model\BlogPosts.cs" />
     <Compile Include="Model\Post.cs" />
+    <Compile Include="Model\Posts.cs" />
+    <Compile Include="Model\Tag.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup />

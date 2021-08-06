@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DBAccess.Model;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -50,5 +51,33 @@ namespace DBAccess
 
             return listaTagova;
         }
+
+        public Tag GetTags()
+        {
+            SqlCommand command = new SqlCommand("getTags", db)
+            {
+                CommandType = CommandType.StoredProcedure
+            };
+            Tag tagsList = new Tag();
+            try
+            {
+                db.Open();
+                SqlDataReader reader = command.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    tagsList.Tags.Add(Convert.ToString(reader[1]));
+                }
+
+                reader.Close();
+                db.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return tagsList;
+        }
+
     }
 }
