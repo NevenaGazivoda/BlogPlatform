@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DBAccess.Model
+namespace Common.Tag
 {
     public class Tag
     {

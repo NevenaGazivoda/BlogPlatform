@@ -4,11 +4,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DBAccess.Model
+namespace Common.Post
 {
-    public class Posts
+    public class BPosts
     {
-        public int postId { get; set; }
+        public List<BlogPosts> blogPosts { get; set; }
+        public BPosts()
+        {
+            blogPosts = new List<BlogPosts>();
+        }
+        public int postsCount { get; set; }
+
+    }
+
+    public class BlogPosts
+    {
         public string slug { get; set; }
         public string title { get; set; }
         public string description { get; set; }
@@ -17,7 +27,7 @@ namespace DBAccess.Model
         public DateTime createdAt { get; set; }
         public DateTime updatedAt { get; set; }
 
-        public Posts()
+        public BlogPosts()
         {
             tagList = new List<string>();
         }

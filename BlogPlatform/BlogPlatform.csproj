@@ -155,7 +155,6 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\SampleDirection.cs" />
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
-    <Compile Include="Controllers\DBAccess.cs" />
     <Compile Include="Controllers\PostsController.cs" />
     <Compile Include="Controllers\Connection.cs" />
     <Compile Include="Controllers\HomeController.cs" />
@@ -248,6 +247,10 @@
     <Content Include="Scripts\jquery-3.3.1.min.map" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{0e58a0ab-b3e0-471d-afc8-85fa62504a9b}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DBAccess\DBAccess.csproj">
       <Project>{e424c660-c957-467c-b2a4-b215a07970e8}</Project>
       <Name>DBAccess</Name>

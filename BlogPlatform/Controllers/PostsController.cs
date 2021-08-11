@@ -1,6 +1,6 @@
-﻿using BlogPlatform.Models;
+﻿using Common.Post;
+using Common.Tag;
 using DBAccess;
-using DBAccess.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
