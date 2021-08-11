@@ -156,63 +156,15 @@ namespace DBAccess
                 Console.WriteLine(ex.Message);
             }
 
-
-            SqlCommand com = new SqlCommand("getTags", db)
-            {
-                CommandType = CommandType.StoredProcedure
-            };
-
-            List<TagModel> tags = new List<TagModel>();
-            try
-            {
-                SqlDataReader reader = com.ExecuteReader();
-                while (reader.Read())
-                {
-                    TagModel t = new TagModel();
-                    t.tagId = Convert.ToInt32(reader[0]);
-                    t.name = Convert.ToString(reader[1]);
-                    tags.Add(t);
-                }
-                reader.Close();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-
+            DBTags dBTags = new DBTags();
+            List<TagModel> tags = dBTags.GetAllTags();
+                       
             for (int i = 0; i < post.blogPost.tagList.Count; i++)
             {
                 var idTag = "";
-                //  tags.Where(tag => tag.name != post.blogPost.tagList[i]);
                 if (!tags.Any(tag => tag.name == post.blogPost.tagList[i]))
                 {
-                    SqlCommand cmd = new SqlCommand("insertIntoTags", db)
-                    {
-                        CommandType = CommandType.StoredProcedure
-                    };
-                    SqlParameter outputParam = new SqlParameter("@tagId", SqlDbType.Int)
-                    {
-                        Direction = ParameterDirection.Output
-                    };
-
-                    SqlParameter parameter = new SqlParameter();
-                    parameter.ParameterName = "@name";
-                    parameter.SqlDbType = SqlDbType.NVarChar;
-                    parameter.Direction = ParameterDirection.Input;
-                    parameter.Value = post.blogPost.tagList[i];
-
-
-                    cmd.Parameters.Add(outputParam);
-                    cmd.Parameters.Add(parameter);
-                    try
-                    {
-                        cmd.ExecuteNonQuery();
-                        idTag = outputParam.Value.ToString();
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine(ex.Message);
-                    }
+                    idTag = dBTags.InsertTag(post.blogPost.tagList[i]);
                 }
                 else if (tags.Any(tag => tag.name == post.blogPost.tagList[i]))
                 {
